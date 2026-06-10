@@ -2,7 +2,7 @@ const http = require('http');
 const url = require('url');
 
 function gcd(a, b) {
-  while (b !== 0) {
+  while (b !== 0n) {
     const temp = b;
     b = a % b;
     a = temp;
@@ -15,7 +15,8 @@ function lcm(a, b) {
 }
 
 function isNatural(n) {
-  return Number.isInteger(n) && n > 0;
+  const num = Number(n);
+  return Number.isInteger(num) && num > 0 && !isNaN(num);
 }
 
 const server = http.createServer((req, res) => {
@@ -28,22 +29,24 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const x = parseInt(query.x, 10);
-  const y = parseInt(query.y, 10);
+  const xStr = query.x;
+  const yStr = query.y;
 
-  if (isNaN(x) || isNaN(y) || !isNatural(x) || !isNatural(y)) {
+  if (!xStr || !yStr || !/^\d+$/.test(xStr) || !/^\d+$/.test(yStr)) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('NaN');
     return;
   }
 
+  const x = BigInt(xStr);
+  const y = BigInt(yStr);
+
+  if (x <= 0n || y <= 0n) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('NaN');
+    return;
+  }
   const result = lcm(x, y);
-
-  if (!Number.isInteger(result)) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('NaN');
-    return;
-  }
 
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end(result.toString());
