@@ -11,7 +11,7 @@ function gcd(a, b) {
 }
 
 function lcm(a, b) {
-  return Math.abs(a * b) / gcd(a, b);
+  return (a / gcd(a, b)) * b;
 }
 
 function isNatural(n) {
@@ -20,15 +20,14 @@ function isNatural(n) {
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  const expectedPath = '/nshandr368_gmail_com';
+  const query = parsedUrl.query;
 
-  if (parsedUrl.pathname !== expectedPath) {
+  if (parsedUrl.pathname !== '/nshandr368_gmail_com') {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not Found');
     return;
   }
 
-  const query = parsedUrl.query;
   const x = parseInt(query.x, 10);
   const y = parseInt(query.y, 10);
 
@@ -39,11 +38,18 @@ const server = http.createServer((req, res) => {
   }
 
   const result = lcm(x, y);
+
+  if (!Number.isInteger(result)) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('NaN');
+    return;
+  }
+
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end(String(result));
+  res.end(result.toString());
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
-  console.log(`Server started on port: ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
